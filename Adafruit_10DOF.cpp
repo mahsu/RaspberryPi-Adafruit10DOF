@@ -12,15 +12,18 @@
   Written by Kevin Townsend for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
-#if ARDUINO >= 100
+/*
+ #if ARDUINO >= 100
  #include "Arduino.h"
 #else
  #include "WProgram.h"
 #endif
+*/
 
-#include <Wire.h>
+//#include <Wire.h>
 #include <limits.h>
 #include <math.h>
+#include <wiringPiI2C.h>
 
 #include "Adafruit_10DOF.h"
 
@@ -56,7 +59,7 @@ Adafruit_10DOF::Adafruit_10DOF(void)
 bool Adafruit_10DOF::begin()
 {
   // Enable I2C
-  Wire.begin();
+  //Wire.begin();
 
   return true;
 }

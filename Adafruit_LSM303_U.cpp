@@ -49,8 +49,10 @@ static float _lsm303Mag_Gauss_LSB_Z  = 980.0F;   // Varies with gain
     @brief  Abstract away platform differences in Arduino wire library
 */
 /**************************************************************************/
-void Adafruit_LSM303_Accel_Unified::write8(byte address, byte reg, byte value)
+void Adafruit_LSM303_Accel_Unified::write8(int fd, byte reg, byte value)
 {
+	wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
+	/*
   Wire.beginTransmission(address);
   #if ARDUINO >= 100
     Wire.write((uint8_t)reg);
@@ -60,6 +62,7 @@ void Adafruit_LSM303_Accel_Unified::write8(byte address, byte reg, byte value)
     Wire.send(value);
   #endif
   Wire.endTransmission();
+  */
 }
 
 /**************************************************************************/
@@ -67,9 +70,10 @@ void Adafruit_LSM303_Accel_Unified::write8(byte address, byte reg, byte value)
     @brief  Abstract away platform differences in Arduino wire library
 */
 /**************************************************************************/
-byte Adafruit_LSM303_Accel_Unified::read8(byte address, byte reg)
+byte Adafruit_LSM303_Accel_Unified::read8(int fd, byte reg)
 {
-  byte value;
+  return wiringPiI2CReadReg8(fd,(uint32_t) reg);
+  /*byte value;
 
   Wire.beginTransmission(address);
   #if ARDUINO >= 100
@@ -96,7 +100,17 @@ byte Adafruit_LSM303_Accel_Unified::read8(byte address, byte reg)
 /**************************************************************************/
 void Adafruit_LSM303_Accel_Unified::read()
 {
+
+	wiringPiI2CWrite(LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
   // Read the accelerometer
+	uint8_t xlo = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t xhi = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t ylo = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t yhi = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t zlo = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t zhi = (uint8_t)wiringPiI2CRead(_fd);
+  
+  /*
   Wire.beginTransmission((byte)LSM303_ADDRESS_ACCEL);
   #if ARDUINO >= 100
     Wire.write(LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
@@ -124,7 +138,7 @@ void Adafruit_LSM303_Accel_Unified::read()
     uint8_t zlo = Wire.receive();
     uint8_t zhi = Wire.receive();
   #endif    
-
+	*/
   // Shift values to create properly formed integer (low byte first)
   _accelData.x = (int16_t)(xlo | (xhi << 8)) >> 4;
   _accelData.y = (int16_t)(ylo | (yhi << 8)) >> 4;
@@ -156,14 +170,17 @@ Adafruit_LSM303_Accel_Unified::Adafruit_LSM303_Accel_Unified(int32_t sensorID) {
 bool Adafruit_LSM303_Accel_Unified::begin()
 {
   // Enable I2C
-  Wire.begin();
+  _fd = wiringPiI2CSetup(LSM303_ADDRESS_ACCEL);
+  if (_fd == -1) {
+	  return false;
+  }
 
   // Enable the accelerometer (100Hz)
-  write8(LSM303_ADDRESS_ACCEL, LSM303_REGISTER_ACCEL_CTRL_REG1_A, 0x57);
+  write8(_fd, LSM303_REGISTER_ACCEL_CTRL_REG1_A, 0x57);
   
   // LSM303DLHC has no WHOAMI register so read CTRL_REG1_A back to check
   // if we are connected or not
-  uint8_t reg1_a = read8(LSM303_ADDRESS_ACCEL, LSM303_REGISTER_ACCEL_CTRL_REG1_A);
+  uint8_t reg1_a = read8(_fd, LSM303_REGISTER_ACCEL_CTRL_REG1_A);
   if (reg1_a != 0x57)
   {
     return false;
@@ -187,7 +204,7 @@ bool Adafruit_LSM303_Accel_Unified::getEvent(sensors_event_t *event) {
   event->version   = sizeof(sensors_event_t);
   event->sensor_id = _sensorID;
   event->type      = SENSOR_TYPE_ACCELEROMETER;
-  event->timestamp = millis();
+  event->timestamp = 0;//TODO implement millis //millis();
   event->acceleration.x = _accelData.x * _lsm303Accel_MG_LSB * SENSORS_GRAVITY_STANDARD;
   event->acceleration.y = _accelData.y * _lsm303Accel_MG_LSB * SENSORS_GRAVITY_STANDARD;
   event->acceleration.z = _accelData.z * _lsm303Accel_MG_LSB * SENSORS_GRAVITY_STANDARD;
@@ -230,6 +247,8 @@ void Adafruit_LSM303_Accel_Unified::getSensor(sensor_t *sensor) {
 /**************************************************************************/
 void Adafruit_LSM303_Mag_Unified::write8(byte address, byte reg, byte value)
 {
+		wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
+	/*
   Wire.beginTransmission(address);
   #if ARDUINO >= 100
     Wire.write((uint8_t)reg);
@@ -239,6 +258,7 @@ void Adafruit_LSM303_Mag_Unified::write8(byte address, byte reg, byte value)
     Wire.send(value);
   #endif
   Wire.endTransmission();
+  */
 }
 
 /**************************************************************************/
@@ -248,6 +268,8 @@ void Adafruit_LSM303_Mag_Unified::write8(byte address, byte reg, byte value)
 /**************************************************************************/
 byte Adafruit_LSM303_Mag_Unified::read8(byte address, byte reg)
 {
+	return wiringPiI2CReadReg8(fd,(uint32_t) reg);
+  /*
   byte value;
 
   Wire.beginTransmission(address);
@@ -266,6 +288,7 @@ byte Adafruit_LSM303_Mag_Unified::read8(byte address, byte reg)
   Wire.endTransmission();
 
   return value;
+  */
 }
 
 /**************************************************************************/
@@ -275,7 +298,18 @@ byte Adafruit_LSM303_Mag_Unified::read8(byte address, byte reg)
 /**************************************************************************/
 void Adafruit_LSM303_Mag_Unified::read()
 {
+		wiringPiI2CWrite(LSM303_REGISTER_MAG_OUT_X_H_M);
+		
   // Read the magnetometer
+    // Note high before low (different than accel) 
+	uint8_t xhi = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t xlo = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t zhi = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t zlo = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t yhi = (uint8_t)wiringPiI2CRead(_fd);
+    uint8_t ylo = (uint8_t)wiringPiI2CRead(_fd);
+  // Read the magnetometer
+  /*
   Wire.beginTransmission((byte)LSM303_ADDRESS_MAG);
   #if ARDUINO >= 100
     Wire.write(LSM303_REGISTER_MAG_OUT_X_H_M);
@@ -304,6 +338,7 @@ void Adafruit_LSM303_Mag_Unified::read()
     uint8_t yhi = Wire.receive();
     uint8_t ylo = Wire.receive();
   #endif
+  */
   
   // Shift values to create properly formed integer (low byte first)
   _magData.x = (int16_t)(xlo | ((int16_t)xhi << 8));
@@ -340,14 +375,18 @@ Adafruit_LSM303_Mag_Unified::Adafruit_LSM303_Mag_Unified(int32_t sensorID) {
 bool Adafruit_LSM303_Mag_Unified::begin()
 {
   // Enable I2C
-  Wire.begin();
+  //Wire.begin();
+    _fd = wiringPiI2CSetup(LSM303_ADDRESS_MAG);
+  if (_fd == -1) {
+	  return false;
+  }
   
   // Enable the magnetometer
-  write8(LSM303_ADDRESS_MAG, LSM303_REGISTER_MAG_MR_REG_M, 0x00);
+  write8(_fd, LSM303_REGISTER_MAG_MR_REG_M, 0x00);
 
   // LSM303DLHC has no WHOAMI register so read CRA_REG_M to check
   // the default value (0b00010000/0x10)
-  uint8_t reg1_a = read8(LSM303_ADDRESS_MAG, LSM303_REGISTER_MAG_CRA_REG_M);
+  uint8_t reg1_a = read8(_fd, LSM303_REGISTER_MAG_CRA_REG_M);
   if (reg1_a != 0x10)
   {
     return false;
@@ -421,7 +460,7 @@ void Adafruit_LSM303_Mag_Unified::setMagGain(lsm303MagGain gain)
 void Adafruit_LSM303_Mag_Unified::setMagRate(lsm303MagRate rate)
 {
 	byte reg_m = ((byte)rate & 0x07) << 2;
-  write8(LSM303_ADDRESS_MAG, LSM303_REGISTER_MAG_CRA_REG_M, reg_m);
+  write8(_fd, LSM303_REGISTER_MAG_CRA_REG_M, reg_m);
 }
 
 
@@ -439,7 +478,7 @@ bool Adafruit_LSM303_Mag_Unified::getEvent(sensors_event_t *event) {
   while(!readingValid)
   {
 
-    uint8_t reg_mg = read8(LSM303_ADDRESS_MAG, LSM303_REGISTER_MAG_SR_REG_Mg);
+    uint8_t reg_mg = read8(_fd, LSM303_REGISTER_MAG_SR_REG_Mg);
     if (!(reg_mg & 0x1)) {
 			return false;
     }
@@ -525,7 +564,7 @@ bool Adafruit_LSM303_Mag_Unified::getEvent(sensors_event_t *event) {
   event->version   = sizeof(sensors_event_t);
   event->sensor_id = _sensorID;
   event->type      = SENSOR_TYPE_MAGNETIC_FIELD;
-  event->timestamp = millis();
+  event->timestamp = 0; //TODO implement millis();
   event->magnetic.x = _magData.x / _lsm303Mag_Gauss_LSB_XY * SENSORS_GAUSS_TO_MICROTESLA;
   event->magnetic.y = _magData.y / _lsm303Mag_Gauss_LSB_XY * SENSORS_GAUSS_TO_MICROTESLA;
   event->magnetic.z = _magData.z / _lsm303Mag_Gauss_LSB_Z * SENSORS_GAUSS_TO_MICROTESLA;

@@ -58,7 +58,7 @@ void Adafruit_L3GD20_Unified::write8(int fd, byte reg, byte value)
 /**************************************************************************/
 byte Adafruit_L3GD20_Unified::read8(int fd, byte reg)
 {
-  wiringPiI2CReadReg8(fd,(uint32_t) reg);
+  return wiringPiI2CReadReg8(fd,(uint32_t) reg);
   /*byte value;
 
   Wire.beginTransmission((byte)L3GD20_ADDRESS);

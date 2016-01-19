@@ -6,6 +6,9 @@
 #include <string.h>
 #include <inttypes.h>
 #include <unistd.h>
+
+#include <wiringPiI2C.h>
+
 typedef unsigned char byte;
 
 

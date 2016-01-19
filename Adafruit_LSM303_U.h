@@ -15,20 +15,24 @@
 #ifndef __LSM303_H__
 #define __LSM303_H__
 
+/*
 #if (ARDUINO >= 100)
  #include "Arduino.h"
 #else
  #include "WProgram.h"
 #endif
+*/
 
 #include <Adafruit_Sensor.h>
+#include "custom.h"
+/*
 #ifdef __AVR_ATtiny85__
   #include "TinyWireM.h"
   #define Wire TinyWireM
 #else
   #include <Wire.h>
 #endif
-
+*/
 
 /*=========================================================================
     I2C ADDRESS/BITS
@@ -166,10 +170,11 @@ class Adafruit_LSM303_Accel_Unified : public Adafruit_Sensor
   private:
     lsm303AccelData _accelData;   // Last read accelerometer data will be available here
     int32_t         _sensorID;
-    
-    void write8(byte address, byte reg, byte value);
-    byte read8(byte address, byte reg);
-    void read(void);
+    int32_t			_fd;
+	
+    void write8(int fd, byte reg, byte value);
+    byte read8(int fd, byte reg);
+    void read(int fd);
 };
 
 /* Unified sensor driver for the magnetometer */
@@ -190,10 +195,11 @@ class Adafruit_LSM303_Mag_Unified : public Adafruit_Sensor
     lsm303MagData   _magData;     // Last read magnetometer data will be available here
     int32_t         _sensorID;
     bool            _autoRangeEnabled;
+	int32_t			_fd;
     
-    void write8(byte address, byte reg, byte value);
-    byte read8(byte address, byte reg);
-    void read(void);
+    void write8(int fd, byte reg, byte value);
+    byte read8(int fd, byte reg);
+    void read(int fd);
 };
 
 #endif

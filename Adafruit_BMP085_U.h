@@ -17,20 +17,25 @@
 #ifndef __BMP085_H__
 #define __BMP085_H__
 
+/*
 #if (ARDUINO >= 100)
  #include "Arduino.h"
 #else
  #include "WProgram.h"
 #endif
+*/
 
+#include "custom.h"
 #include <Adafruit_Sensor.h>
 
+/*
 #ifdef __AVR_ATtiny85__
  #include "TinyWireM.h"
  #define Wire TinyWireM
 #else
  #include <Wire.h>
 #endif
+*/
 
 /*=========================================================================
     I2C ADDRESS/BITS
