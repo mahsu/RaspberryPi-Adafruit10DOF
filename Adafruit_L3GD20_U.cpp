@@ -22,7 +22,7 @@
 #endif
 */
 
-#include <Wire.h>
+//#include <Wire.h>
 #include <limits.h>
 #include <wiringPiI2C.h>
 #include "Adafruit_L3GD20_U.h"
@@ -118,7 +118,7 @@ bool Adafruit_L3GD20_Unified::begin(gyroRange_t rng)
 
   /* Make sure we have the correct chip ID since this checks
      for correct address and that the IC is properly connected */
-  uint8_t id = read8(GYRO_REGISTER_WHO_AM_I);
+  uint8_t id = read8(_fd, GYRO_REGISTER_WHO_AM_I);
   //Serial.println(id, HEX);
   if ((id != L3GD20_ID) && (id != L3GD20H_ID))
   {
@@ -137,8 +137,8 @@ bool Adafruit_L3GD20_Unified::begin(gyroRange_t rng)
      0  XEN       X-axis enable (0 = disabled, 1 = enabled)           1 */
 
   /* Reset then switch to normal mode and enable all three channels */
-  write8(GYRO_REGISTER_CTRL_REG1, 0x00);
-  write8(GYRO_REGISTER_CTRL_REG1, 0x0F);
+  write8(_fd, GYRO_REGISTER_CTRL_REG1, 0x00);
+  write8(_fd, GYRO_REGISTER_CTRL_REG1, 0x0F);
   /* ------------------------------------------------------------------ */
 
   /* Set CTRL_REG2 (0x21)
@@ -239,7 +239,8 @@ bool Adafruit_L3GD20_Unified::getEvent(sensors_event_t* event)
   
   while(!readingValid)
   {
-    event->timestamp = millis();
+    //TODO implement millis equivalent
+      event->timestamp = 0; //millis()
   
 	wiringPiI2CWrite(_fd,GYRO_REGISTER_OUT_X_L | 0x80);
     //todo check for error

@@ -26,7 +26,7 @@
 */
 
 #include <Adafruit_Sensor.h>
-#include <Wire.h>
+//#include <Wire.h>
 #include <wiringPiI2C.h>
 
 /*=========================================================================
