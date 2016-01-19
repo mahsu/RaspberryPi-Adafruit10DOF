@@ -14,15 +14,17 @@
   Written by Kevin "KTOWN" Townsend for Adafruit Industries.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
-#if ARDUINO >= 100
+/*
+ #if ARDUINO >= 100
  #include "Arduino.h"
 #else
  #include "WProgram.h"
 #endif
+*/
 
 #include <Wire.h>
 #include <limits.h>
-
+#include <wiringPiI2C.h>
 #include "Adafruit_L3GD20_U.h"
 
 /***************************************************************************
@@ -34,8 +36,10 @@
     @brief  Abstract away platform differences in Arduino wire library
 */
 /**************************************************************************/
-void Adafruit_L3GD20_Unified::write8(byte reg, byte value)
+void Adafruit_L3GD20_Unified::write8(int fd, byte reg, byte value)
 {
+  wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
+  /*
   Wire.beginTransmission(L3GD20_ADDRESS);
   #if ARDUINO >= 100
     Wire.write((uint8_t)reg);
@@ -44,7 +48,7 @@ void Adafruit_L3GD20_Unified::write8(byte reg, byte value)
     Wire.send(reg);
     Wire.send(value);
   #endif
-  Wire.endTransmission();
+  Wire.endTransmission();*/
 }
 
 /**************************************************************************/
@@ -52,9 +56,10 @@ void Adafruit_L3GD20_Unified::write8(byte reg, byte value)
     @brief  Abstract away platform differences in Arduino wire library
 */
 /**************************************************************************/
-byte Adafruit_L3GD20_Unified::read8(byte reg)
+byte Adafruit_L3GD20_Unified::read8(int fd, byte reg)
 {
-  byte value;
+  wiringPiI2CReadReg8(fd,(uint32_t) reg);
+  /*byte value;
 
   Wire.beginTransmission((byte)L3GD20_ADDRESS);
   #if ARDUINO >= 100
@@ -73,6 +78,7 @@ byte Adafruit_L3GD20_Unified::read8(byte reg)
   Wire.endTransmission();
 
   return value;
+  */
 }
 
 /***************************************************************************
@@ -101,7 +107,11 @@ Adafruit_L3GD20_Unified::Adafruit_L3GD20_Unified(int32_t sensorID) {
 bool Adafruit_L3GD20_Unified::begin(gyroRange_t rng)
 {
   /* Enable I2C */
-  Wire.begin();
+  _fd = wiringPiI2CSetup(L3GD20_ADDRESS);
+  if (_fd == -1) {
+	  return false;
+  }
+  //todo check for errors
 
   /* Set the range the an appropriate value */  
   _range = rng;
@@ -174,13 +184,13 @@ bool Adafruit_L3GD20_Unified::begin(gyroRange_t rng)
   switch(_range)
   {
     case GYRO_RANGE_250DPS:
-      write8(GYRO_REGISTER_CTRL_REG4, 0x00);
+      write8(_fd, GYRO_REGISTER_CTRL_REG4, 0x00);
       break;
     case GYRO_RANGE_500DPS:
-      write8(GYRO_REGISTER_CTRL_REG4, 0x10);
+      write8(_fd, GYRO_REGISTER_CTRL_REG4, 0x10);
       break;
     case GYRO_RANGE_2000DPS:
-      write8(GYRO_REGISTER_CTRL_REG4, 0x20);
+      write8(_fd, GYRO_REGISTER_CTRL_REG4, 0x20);
       break;
   }
   /* ------------------------------------------------------------------ */
@@ -231,7 +241,10 @@ bool Adafruit_L3GD20_Unified::getEvent(sensors_event_t* event)
   {
     event->timestamp = millis();
   
-    /* Read 6 bytes from the sensor */
+	wiringPiI2CWrite(_fd,GYRO_REGISTER_OUT_X_L | 0x80);
+    //todo check for error
+	/*
+	//Read 6 bytes from the sensor
     Wire.beginTransmission((byte)L3GD20_ADDRESS);
     #if ARDUINO >= 100
       Wire.write(GYRO_REGISTER_OUT_X_L | 0x80);
@@ -243,8 +256,15 @@ bool Adafruit_L3GD20_Unified::getEvent(sensors_event_t* event)
         continue;
     }
     Wire.requestFrom((byte)L3GD20_ADDRESS, (byte)6);
-
-    #if ARDUINO >= 100
+*/
+	  uint8_t xlo = (uint8_t)wiringPiI2CRead(_fd);
+      uint8_t xhi = (uint8_t)wiringPiI2CRead(_fd);
+      uint8_t ylo = (uint8_t)wiringPiI2CRead(_fd);
+      uint8_t yhi = (uint8_t)wiringPiI2CRead(_fd);
+      uint8_t zlo = (uint8_t)wiringPiI2CRead(_fd);
+      uint8_t zhi = (uint8_t)wiringPiI2CRead(_fd);
+    /*
+	#if ARDUINO >= 100
       uint8_t xlo = Wire.read();
       uint8_t xhi = Wire.read();
       uint8_t ylo = Wire.read();
@@ -259,7 +279,7 @@ bool Adafruit_L3GD20_Unified::getEvent(sensors_event_t* event)
       uint8_t zlo = Wire.receive();
       uint8_t zhi = Wire.receive();
     #endif    
-  
+  */
     /* Shift values to create properly formed integer (low byte first) */
     event->gyro.x = (int16_t)(xlo | (xhi << 8));
     event->gyro.y = (int16_t)(ylo | (yhi << 8));
@@ -283,20 +303,20 @@ bool Adafruit_L3GD20_Unified::getEvent(sensors_event_t* event)
           case GYRO_RANGE_500DPS:
             /* Push the range up to 2000dps */
             _range = GYRO_RANGE_2000DPS;
-            write8(GYRO_REGISTER_CTRL_REG1, 0x00);
-            write8(GYRO_REGISTER_CTRL_REG1, 0x0F);
-            write8(GYRO_REGISTER_CTRL_REG4, 0x20);
-            write8(GYRO_REGISTER_CTRL_REG5, 0x80);
+            write8(_fd, GYRO_REGISTER_CTRL_REG1, 0x00);
+            write8(_fd, GYRO_REGISTER_CTRL_REG1, 0x0F);
+            write8(_fd, GYRO_REGISTER_CTRL_REG4, 0x20);
+            write8(_fd, GYRO_REGISTER_CTRL_REG5, 0x80);
             readingValid = false;
             // Serial.println("Changing range to 2000DPS");
             break;
           case GYRO_RANGE_250DPS:
             /* Push the range up to 500dps */
             _range = GYRO_RANGE_500DPS;
-            write8(GYRO_REGISTER_CTRL_REG1, 0x00);
-            write8(GYRO_REGISTER_CTRL_REG1, 0x0F);
-            write8(GYRO_REGISTER_CTRL_REG4, 0x10);
-            write8(GYRO_REGISTER_CTRL_REG5, 0x80);
+            write8(_fd, GYRO_REGISTER_CTRL_REG1, 0x00);
+            write8(_fd, GYRO_REGISTER_CTRL_REG1, 0x0F);
+            write8(_fd, GYRO_REGISTER_CTRL_REG4, 0x10);
+            write8(_fd, GYRO_REGISTER_CTRL_REG5, 0x80);
             readingValid = false;
             // Serial.println("Changing range to 500DPS");
             break;

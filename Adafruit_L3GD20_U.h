@@ -17,14 +17,17 @@
 #ifndef __L3GD20_H__
 #define __L3GD20_H__
 
+/*
 #if (ARDUINO >= 100)
  #include "Arduino.h"
 #else
  #include "WProgram.h"
 #endif
+*/
 
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
+#include <wiringPiI2C.h>
 
 /*=========================================================================
     I2C ADDRESS/BITS AND SETTINGS
@@ -94,8 +97,9 @@ class Adafruit_L3GD20_Unified : public Adafruit_Sensor
     void getSensor       ( sensor_t* );
 
   private:
-    void        write8  ( byte reg, byte value );
-    byte        read8   ( byte reg );
+    int32_t		_fd;
+	void        write8  ( int fd, byte reg, byte value );
+    byte        read8   ( int fd, byte reg );
     gyroRange_t _range;
     int32_t     _sensorID;
     bool        _autoRangeEnabled;
