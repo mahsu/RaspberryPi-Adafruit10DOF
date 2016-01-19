@@ -12,7 +12,8 @@
   Written by Kevin Townsend for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
-#if ARDUINO >= 100
+/*
+ * #if ARDUINO >= 100
  #include "Arduino.h"
 #else
  #include "WProgram.h"
@@ -24,6 +25,7 @@
 #else
   #include <Wire.h>
 #endif
+*/
 
 #include <limits.h>
 
@@ -91,6 +93,7 @@ byte Adafruit_LSM303_Accel_Unified::read8(int fd, byte reg)
   Wire.endTransmission();
 
   return value;
+  */
 }
 
 /**************************************************************************/
@@ -98,10 +101,10 @@ byte Adafruit_LSM303_Accel_Unified::read8(int fd, byte reg)
     @brief  Reads the raw data from the sensor
 */
 /**************************************************************************/
-void Adafruit_LSM303_Accel_Unified::read()
+void Adafruit_LSM303_Accel_Unified::read(int fd)
 {
 
-	wiringPiI2CWrite(LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
+	wiringPiI2CWrite(fd, LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
   // Read the accelerometer
 	uint8_t xlo = (uint8_t)wiringPiI2CRead(_fd);
     uint8_t xhi = (uint8_t)wiringPiI2CRead(_fd);
@@ -199,7 +202,7 @@ bool Adafruit_LSM303_Accel_Unified::getEvent(sensors_event_t *event) {
   memset(event, 0, sizeof(sensors_event_t));
   
   /* Read new data */
-  read();
+  read(_fd);
 
   event->version   = sizeof(sensors_event_t);
   event->sensor_id = _sensorID;
@@ -245,7 +248,7 @@ void Adafruit_LSM303_Accel_Unified::getSensor(sensor_t *sensor) {
     @brief  Abstract away platform differences in Arduino wire library
 */
 /**************************************************************************/
-void Adafruit_LSM303_Mag_Unified::write8(byte address, byte reg, byte value)
+void Adafruit_LSM303_Mag_Unified::write8(int fd, byte reg, byte value)
 {
 		wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
 	/*
@@ -266,7 +269,7 @@ void Adafruit_LSM303_Mag_Unified::write8(byte address, byte reg, byte value)
     @brief  Abstract away platform differences in Arduino wire library
 */
 /**************************************************************************/
-byte Adafruit_LSM303_Mag_Unified::read8(byte address, byte reg)
+byte Adafruit_LSM303_Mag_Unified::read8(int fd, byte reg)
 {
 	return wiringPiI2CReadReg8(fd,(uint32_t) reg);
   /*
@@ -296,18 +299,18 @@ byte Adafruit_LSM303_Mag_Unified::read8(byte address, byte reg)
     @brief  Reads the raw data from the sensor
 */
 /**************************************************************************/
-void Adafruit_LSM303_Mag_Unified::read()
+void Adafruit_LSM303_Mag_Unified::read(int fd)
 {
-		wiringPiI2CWrite(LSM303_REGISTER_MAG_OUT_X_H_M);
+		wiringPiI2CWrite(fd, LSM303_REGISTER_MAG_OUT_X_H_M);
 		
   // Read the magnetometer
     // Note high before low (different than accel) 
-	uint8_t xhi = (uint8_t)wiringPiI2CRead(_fd);
-    uint8_t xlo = (uint8_t)wiringPiI2CRead(_fd);
-    uint8_t zhi = (uint8_t)wiringPiI2CRead(_fd);
-    uint8_t zlo = (uint8_t)wiringPiI2CRead(_fd);
-    uint8_t yhi = (uint8_t)wiringPiI2CRead(_fd);
-    uint8_t ylo = (uint8_t)wiringPiI2CRead(_fd);
+	uint8_t xhi = (uint8_t)wiringPiI2CRead(fd);
+    uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
+    uint8_t zhi = (uint8_t)wiringPiI2CRead(fd);
+    uint8_t zlo = (uint8_t)wiringPiI2CRead(fd);
+    uint8_t yhi = (uint8_t)wiringPiI2CRead(fd);
+    uint8_t ylo = (uint8_t)wiringPiI2CRead(fd);
   // Read the magnetometer
   /*
   Wire.beginTransmission((byte)LSM303_ADDRESS_MAG);
@@ -415,7 +418,7 @@ void Adafruit_LSM303_Mag_Unified::enableAutoRange(bool enabled)
 /**************************************************************************/
 void Adafruit_LSM303_Mag_Unified::setMagGain(lsm303MagGain gain)
 {
-  write8(LSM303_ADDRESS_MAG, LSM303_REGISTER_MAG_CRB_REG_M, (byte)gain);
+  write8(_fd, LSM303_REGISTER_MAG_CRB_REG_M, (byte)gain);
   
   _magGain = gain;
  
@@ -484,7 +487,7 @@ bool Adafruit_LSM303_Mag_Unified::getEvent(sensors_event_t *event) {
     }
   
     /* Read new data */
-    read();
+    read(_fd);
     
     /* Make sure the sensor isn't saturating if auto-ranging is enabled */
     if (!_autoRangeEnabled)
