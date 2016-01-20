@@ -17,25 +17,8 @@
 #ifndef __BMP085_H__
 #define __BMP085_H__
 
-/*
-#if (ARDUINO >= 100)
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-*/
-
-#include "custom.h"
+#include "common.h"
 #include <Adafruit_Sensor.h>
-
-/*
-#ifdef __AVR_ATtiny85__
- #include "TinyWireM.h"
- #define Wire TinyWireM
-#else
- #include <Wire.h>
-#endif
-*/
 
 /*=========================================================================
     I2C ADDRESS/BITS
@@ -101,27 +84,18 @@
     } bmp085_calib_data;
 /*=========================================================================*/
 
-class Adafruit_BMP085_Unified : public Adafruit_Sensor
-{
-  public:
-    Adafruit_BMP085_Unified(int32_t sensorID = -1);
-  
-    bool  begin(bmp085_mode_t mode = BMP085_MODE_ULTRAHIGHRES);
-    void  getTemperature(float *temp);
-    void  getPressure(float *pressure);
-    float pressureToAltitude(float seaLvel, float atmospheric);
-    float seaLevelForAltitude(float altitude, float atmospheric);
-    // Note that the next two functions are just for compatibility with old
-    // code that passed the temperature as a third parameter.  A newer
-    // calculation is used which does not need temperature.
-    float pressureToAltitude(float seaLevel, float atmospheric, float temp);
-    float seaLevelForAltitude(float altitude, float atmospheric, float temp);
-    bool  getEvent(sensors_event_t*);
-    void  getSensor(sensor_t*);
+typedef struct bmp_t {
+    int32_t sensorID;
+    int32_t fd;     //i2c handle
+    uint8_t mode;
+} bmp_t;
 
-  private:
-    int32_t computeB5(int32_t ut);
-    int32_t _sensorID;
-};
 
+bool bmp_create( struct bmp_t **ret_bmp, int32_t sensorID);
+bool bmp_getEvent(struct bmp_t *bmp, sensors_event_t* event);
+void bmp_getSensor(struct bmp_t *bmp, sensor_t* sensor);
+void  bmp_getTemperature(struct bmp_t *bmp, float *temp);
+void  bmp_getPressure(struct bmp_t *bmp, float *pressure);
+float bmp_pressureToAltitude(float seaLvel, float atmospheric);
+float bmp_seaLevelForAltitude(float altitude, float atmospheric);
 #endif

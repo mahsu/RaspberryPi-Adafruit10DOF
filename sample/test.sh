@@ -1,5 +1,7 @@
 cd ..
+make clean
 make lib
 cd sample
+make clean
 make all
-build/imu_accel
+build/imu_bmp

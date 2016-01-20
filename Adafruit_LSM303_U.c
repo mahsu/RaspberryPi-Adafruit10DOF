@@ -19,7 +19,7 @@
 #include "Adafruit_LSM303_U.h"
 
 // enabling this #define will enable the debug print blocks
-#define LSM303_DEBUG
+//#define LSM303_DEBUG
 
 
 static float _lsm303Accel_MG_LSB     = 0.001F;   // 1, 2, 4 or 12 mg per lsb
@@ -47,28 +47,11 @@ void _accel_read(struct accel_t *accel) {
     uint8_t yhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Y_H_A);
     uint8_t zlo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Z_L_A);
     uint8_t zhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Z_H_A);
-    /*
-    uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t xhi = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t ylo = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t yhi = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t zlo = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t zhi = (uint8_t)wiringPiI2CRead(fd);
-  */
-  /*
-  Wire.beginTransmission((byte)LSM303_ADDRESS_ACCEL);
-  #if ARDUINO >= 100
-    Wire.write(LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
-  #else
-    Wire.send(LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
-  #endif
-  Wire.endTransmission();
-  Wire.requestFrom((byte)LSM303_ADDRESS_ACCEL, (byte)6);
-*/
-  // Shift values to create properly formed integer (low byte first)
-  accel->accelData.x = (int16_t)(xlo | (xhi << 8)) >> 4;
-  accel->accelData.y = (int16_t)(ylo | (yhi << 8)) >> 4;
-  accel->accelData.z = (int16_t)(zlo | (zhi << 8)) >> 4;
+  
+    // Shift values to create properly formed integer (low byte first)
+    accel->accelData.x = (int16_t)(xlo | (xhi << 8)) >> 4;
+    accel->accelData.y = (int16_t)(ylo | (yhi << 8)) >> 4;
+    accel->accelData.z = (int16_t)(zlo | (zhi << 8)) >> 4;
 }
 
  
@@ -164,47 +147,14 @@ void accel_getSensor(struct accel_t *accel, sensor_t* sensor) {
 void _mag_read(struct mag_t *mag)
 {
     int fd = mag->fd;
-	wiringPiI2CWrite(fd, LSM303_REGISTER_MAG_OUT_X_H_M);
-
+    
     // Read the magnetometer
-    // Note high before low (different than accel) 
-	uint8_t xhi = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t zhi = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t zlo = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t yhi = (uint8_t)wiringPiI2CRead(fd);
-    uint8_t ylo = (uint8_t)wiringPiI2CRead(fd);
-  // Read the magnetometer
-  /*
-  Wire.beginTransmission((byte)LSM303_ADDRESS_MAG);
-  #if ARDUINO >= 100
-    Wire.write(LSM303_REGISTER_MAG_OUT_X_H_M);
-  #else
-    Wire.send(LSM303_REGISTER_MAG_OUT_X_H_M);
-  #endif
-  Wire.endTransmission();
-  Wire.requestFrom((byte)LSM303_ADDRESS_MAG, (byte)6);
-  
-  // Wait around until enough data is available
-  while (Wire.available() < 6);
-
-  // Note high before low (different than accel)  
-  #if ARDUINO >= 100
-    uint8_t xhi = Wire.read();
-    uint8_t xlo = Wire.read();
-    uint8_t zhi = Wire.read();
-    uint8_t zlo = Wire.read();
-    uint8_t yhi = Wire.read();
-    uint8_t ylo = Wire.read();
-  #else
-    uint8_t xhi = Wire.receive();
-    uint8_t xlo = Wire.receive();
-    uint8_t zhi = Wire.receive();
-    uint8_t zlo = Wire.receive();
-    uint8_t yhi = Wire.receive();
-    uint8_t ylo = Wire.receive();
-  #endif
-  */
+    uint8_t xlo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_MAG_OUT_X_L_M);
+    uint8_t xhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_MAG_OUT_X_H_M);
+    uint8_t ylo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_MAG_OUT_Y_L_M);
+    uint8_t yhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_MAG_OUT_Y_H_M);
+    uint8_t zlo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_MAG_OUT_Z_L_M);
+    uint8_t zhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_MAG_OUT_Z_H_M);
   
   // Shift values to create properly formed integer (low byte first)
   mag->magData.x = (int16_t)(xlo | ((int16_t)xhi << 8));

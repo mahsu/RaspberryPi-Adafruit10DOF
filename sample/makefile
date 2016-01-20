@@ -13,4 +13,4 @@ all: $(addprefix $(BUILDDIR)/, $(patsubst %.c,%,$(wildcard ./*.c)))
 $(BUILDDIR)/%:%.c
 	@mkdir -p $(BUILDDIR)
 	@echo $(COMPLIBS)
-	$(CC) -o $@ $< -lwiringPi -I../ $(COMPLIBS) $(CFLAGS)
+	$(CC) -o $@ $< -lwiringPi -lm -I../ $(COMPLIBS) $(CFLAGS)

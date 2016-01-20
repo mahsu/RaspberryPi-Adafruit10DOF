@@ -1,5 +1,5 @@
 C:=gcc
-CFLAGS:=-Wall -std=gnu99
+CFLAGS:=-Wall -std=gnu99 -O3
 BUILDDIR:=build
 
 .PHONY: clean all prep lib
@@ -17,5 +17,5 @@ lib: prep $(addprefix $(BUILDDIR)/, $(patsubst %.c,%.o,$(wildcard ./*.c)))
 
 #autodetect lib sources
 $(BUILDDIR)/%.o: %.c
-	$(CC) -c -o $@ $< -lwiringPi -I. $(CFLAGS)
+	$(CC) -c -o $@ $< -lwiringPi -lm -I. $(CFLAGS)
 
