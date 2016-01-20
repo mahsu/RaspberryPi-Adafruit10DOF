@@ -86,15 +86,6 @@
     } gyroRange_t;
 /*=========================================================================*/
 
-typedef struct gyro_t {
-    int32_t fd;
-    bool autoRangeEnabled;
-    int32_t sensorID;
-    gyroRange_t range;
-} gyro_t;
-
-
-/*
 class Adafruit_L3GD20_Unified : public Adafruit_Sensor
 {
   public:
@@ -113,5 +104,5 @@ class Adafruit_L3GD20_Unified : public Adafruit_Sensor
     int32_t     _sensorID;
     bool        _autoRangeEnabled;
 };
-*/
+
 #endif

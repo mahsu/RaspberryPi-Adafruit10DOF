@@ -129,6 +129,7 @@ typedef struct
 /** struct sensor_s is used to describe basic information about a specific sensor. */
 typedef struct
 {
+    int32_t  fd;                              /**< file handler of the sensor to communicate through i2c**/
     char     name[12];                        /**< sensor name */
     int32_t  version;                         /**< version of the hardware + driver */
     int32_t  sensor_id;                       /**< unique sensor identifier */
@@ -139,6 +140,8 @@ typedef struct
     int32_t  min_delay;                       /**< min delay in microseconds between events. zero = not a constant rate */
 } sensor_t;
 
+
+/*
 class Adafruit_Sensor {
  public:
   // Constructor(s)
@@ -153,5 +156,5 @@ class Adafruit_Sensor {
  private:
   bool _autoRange;
 };
-
+*/
 #endif
