@@ -25,7 +25,7 @@
 #endif
 */
 
-#include <Adafruit_Sensor.h>
+#include "Adafruit_Sensor.h"
 //#include <Wire.h>
 #include <wiringPiI2C.h>
 
@@ -94,8 +94,13 @@ typedef struct gyro_t {
 } gyro_t;
 
 
+bool gyro_create( struct gyro_t **ret_gyro, int32_t sensorID, gyroRange_t rng);
+void gyro_enableAutoRange(struct gyro_t *gyro, bool enabled);
+bool gyro_getEvent(struct gyro_t *gyro, sensors_event_t* event);
+void getSensor(struct gyro_t *gyro, sensor_t* sensor);
+
 /*
-class Adafruit_L3GD20_Unified : public Adafruit_Sensor
+Adafruit_L3GD20_Unified : public Adafruit_Sensor
 {
   public:
     Adafruit_L3GD20_Unified(int32_t sensorID = -1);

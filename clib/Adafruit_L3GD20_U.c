@@ -12,6 +12,7 @@
   products from Adafruit!
 
   Written by Kevin "KTOWN" Townsend for Adafruit Industries.
+  Ported to Raspberry Pi compatible C by Matthew Hsu for Cornell Rocketry Team.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 /*
@@ -42,7 +43,9 @@ void write8(int fd, byte reg, byte value) {
 
 //void Adafruit_L3GD20_Unified::write8(int fd, byte reg, byte value)
 //{
-  wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
+  printf("write8\n");
+    wiringPiI2CWriteReg8(fd, reg, value);
+    usleep(100000);
   /*
   Wire.beginTransmission(L3GD20_ADDRESS);
   #if ARDUINO >= 100
@@ -63,7 +66,10 @@ void write8(int fd, byte reg, byte value) {
 byte read8(int fd, byte reg)
 //byte Adafruit_L3GD20_Unified::read8(int fd, byte reg)
 {
-  return wiringPiI2CReadReg8(fd,(uint32_t) reg);
+  printf("read8\n");
+  byte res = wiringPiI2CReadReg8(fd,(uint32_t) reg);
+    usleep(100000);
+    return res;
   /*byte value;
 
   Wire.beginTransmission((byte)L3GD20_ADDRESS);
@@ -101,7 +107,7 @@ byte read8(int fd, byte reg)
   _autoRangeEnabled = false;
 }*/
 
-bool gryo_create( struct gyro_t **ret_gryo, int32_t sensorID, gyroRange_t rng) {
+bool gyro_create( struct gyro_t **ret_gyro, int32_t sensorID, gyroRange_t rng) {
     struct gyro_t *gyro = malloc (sizeof(struct gyro_t));
     gyro->sensorID = sensorID;
     gyro->autoRangeEnabled = false;
@@ -178,6 +184,7 @@ bool gryo_create( struct gyro_t **ret_gryo, int32_t sensorID, gyroRange_t rng) {
                                   11 = 2000 dps
      0  SIM       SPI Mode (0=4-wire, 1=3-wire)                       0 */
 
+  printf("before rng switch\n");
   /* Adjust resolution if requested */
   switch(rng)
   {
@@ -205,7 +212,7 @@ bool gryo_create( struct gyro_t **ret_gryo, int32_t sensorID, gyroRange_t rng) {
 
   /* Nothing to do ... keep default values */
   /* ------------------------------------------------------------------ */
-
+  *ret_gyro = gyro;
   return true;
 
 }
@@ -215,9 +222,9 @@ bool gryo_create( struct gyro_t **ret_gryo, int32_t sensorID, gyroRange_t rng) {
     @brief  Enables or disables auto-ranging
 */
 /**************************************************************************/
-void gyro_enableAutoRange(struct gyro_t **gyro, bool enabled)
+void gyro_enableAutoRange(struct gyro_t *gyro, bool enabled)
 {
-  (*gyro)->autoRangeEnabled = enabled;
+  gyro->autoRangeEnabled = enabled;
 }
 
 /**************************************************************************/
@@ -243,7 +250,7 @@ bool gyro_getEvent(struct gyro_t *gyro, sensors_event_t* event)
     //TODO implement millis equivalent
       event->timestamp = 0; //millis()
   
-	wiringPiI2CWrite(fd,GYRO_REGISTER_OUT_X_L | 0x80);
+	//wiringPiI2CWrite(fd,GYRO_REGISTER_OUT_X_L | 0x80);
     //todo check for error
 	/*
 	//Read 6 bytes from the sensor
@@ -259,13 +266,22 @@ bool gyro_getEvent(struct gyro_t *gyro, sensors_event_t* event)
     }
     Wire.requestFrom((byte)L3GD20_ADDRESS, (byte)6);
 */
-	  uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
+     printf("%i",wiringPiI2CRead(fd));
+      uint8_t xlo = (uint8_t)wiringPiI2CReadReg8(fd,GYRO_REGISTER_OUT_X_L);
+      uint8_t xhi = (uint8_t)wiringPiI2CReadReg8(fd,GYRO_REGISTER_OUT_X_H);
+      uint8_t ylo = (uint8_t)wiringPiI2CReadReg8(fd,GYRO_REGISTER_OUT_Y_L);
+      uint8_t yhi = (uint8_t)wiringPiI2CReadReg8(fd,GYRO_REGISTER_OUT_Y_H);
+      uint8_t zlo = (uint8_t)wiringPiI2CReadReg8(fd,GYRO_REGISTER_OUT_Z_L);
+      uint8_t zhi = (uint8_t)wiringPiI2CReadReg8(fd,GYRO_REGISTER_OUT_Z_H);
+	 /* 
+      uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
       uint8_t xhi = (uint8_t)wiringPiI2CRead(fd);
       uint8_t ylo = (uint8_t)wiringPiI2CRead(fd);
       uint8_t yhi = (uint8_t)wiringPiI2CRead(fd);
       uint8_t zlo = (uint8_t)wiringPiI2CRead(fd);
       uint8_t zhi = (uint8_t)wiringPiI2CRead(fd);
-    /*
+    */
+      /*
 	#if ARDUINO >= 100
       uint8_t xlo = Wire.read();
       uint8_t xhi = Wire.read();
