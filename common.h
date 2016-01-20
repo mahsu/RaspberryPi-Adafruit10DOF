@@ -1,5 +1,5 @@
-#ifndef _CUSTOM_H
-#define _CUSTOM_H
+#ifndef __COMMON_H__
+#define __COMMON_H__
 
 #include <stdbool.h>
 #include <stdio.h>

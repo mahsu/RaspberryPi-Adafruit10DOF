@@ -12,7 +12,7 @@
   products from Adafruit!
 
   Written by Kevin "KTOWN" Townsend for Adafruit Industries.
-  Ported by Matthew Hsu  to Raspberry Pi compatible C for Cornell Rocketry Team.
+  Ported by Matthew Hsu to Raspberry Pi compatible C for Cornell Rocketry Team.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 #ifndef __L3GD20_H__

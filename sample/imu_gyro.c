@@ -1,3 +1,5 @@
+#include <wiringPiI2C.h>
+#include <Adafruit_Sensor.h>
 #include <Adafruit_L3GD20_U.h>
 
 #include <stdio.h>
