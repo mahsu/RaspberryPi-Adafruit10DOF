@@ -12,21 +12,13 @@
   products from Adafruit!
 
   Written by Kevin "KTOWN" Townsend for Adafruit Industries.
+  Ported by Matthew Hsu  to Raspberry Pi compatible C for Cornell Rocketry Team.
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 #ifndef __L3GD20_H__
 #define __L3GD20_H__
 
-/*
-#if (ARDUINO >= 100)
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-*/
-
-#include <Adafruit_Sensor.h>
-//#include <Wire.h>
+#include "Adafruit_Sensor.h"
 #include <wiringPiI2C.h>
 
 /*=========================================================================
@@ -86,6 +78,7 @@
     } gyroRange_t;
 /*=========================================================================*/
 
+// gyroscope instance
 typedef struct gyro_t {
     int32_t fd;
     bool autoRangeEnabled;
@@ -94,24 +87,10 @@ typedef struct gyro_t {
 } gyro_t;
 
 
-/*
-class Adafruit_L3GD20_Unified : public Adafruit_Sensor
-{
-  public:
-    Adafruit_L3GD20_Unified(int32_t sensorID = -1);
+/* Function prototypes */
+bool gyro_create( struct gyro_t **ret_gyro, int32_t sensorID, gyroRange_t rng);
+void gyro_enableAutoRange(struct gyro_t *gyro, bool enabled);
+bool gyro_getEvent(struct gyro_t *gyro, sensors_event_t* event);
+void gyro_getSensor(struct gyro_t *gyro, sensor_t* sensor);
 
-    bool begin           ( gyroRange_t rng = GYRO_RANGE_250DPS );
-    void enableAutoRange ( bool enabled );
-    bool getEvent        ( sensors_event_t* );
-    void getSensor       ( sensor_t* );
-
-  private:
-    int32_t		_fd;
-	void        write8  ( int fd, byte reg, byte value );
-    byte        read8   ( int fd, byte reg );
-    gyroRange_t _range;
-    int32_t     _sensorID;
-    bool        _autoRangeEnabled;
-};
-*/
 #endif

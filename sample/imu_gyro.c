@@ -13,23 +13,38 @@ int main() {
     sensor_t sensor;
     
     printf("Gyroscope Test\n");
-    //get sensor details
-    //gyro_getSensor(&sensor);
-
-    // Initiailiza sensor
     
+    // Initiailize the sensor 
     if (!gyro_create(&gyro, 20, GYRO_RANGE_250DPS)) {
         printf("No L3GD20 detected!");
-        return;
+        return -1;
     }
+
+    // Enable auto-ranging
     gyro_enableAutoRange(gyro, true);
 
-    //printf("Sensor %s", sensor.name);
     
+    // Display sensor information
+    gyro_getSensor(gyro, &sensor);
+    printf("------------------------------------\n");
+    printf("Sensor:       %s\n", sensor.name);
+    printf("Driver Ver:   %i\n", sensor.version);
+    printf("Unique ID:    %i\n", sensor.sensor_id);
+    printf("Max Value:    %f rad/s\n", sensor.max_value);
+    printf("Min Value:    %f rad/s\n", sensor.min_value);
+    printf("Resolution:   %f rad/s\n", sensor.resolution);  
+    printf("------------------------------------\n\n\n");
+    sleep(2);
+
     for (;;) {
         sensors_event_t event;
         gyro_getEvent(gyro, &event);
-        printf(" X:%f Y:%f Z:%f \n",event.gyro.x,event.gyro.y,event.gyro.z);
-        usleep(500000);
+        printf("X: % 010.6f   ", event.gyro.x);
+        printf("Y: % 010.6f   ", event.gyro.y);
+        printf("Z: % 010.6f   ", event.gyro.z);
+        printf(" rad/s \n");
+        usleep(100000);
     }
+
+    return 0;
 }

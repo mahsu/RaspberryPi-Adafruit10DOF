@@ -15,20 +15,14 @@
 */
 
 /* Update by K. Townsend (Adafruit Industries) for lighter typedefs, and
- * extended sensor support to include color, voltage and current */
+ * extended sensor support to include color, voltage and current 
+ * Update by M. Hsu (Cornell Rocketry Team) to port to Raspberry Pi
+ * compatible C.*/
  
 #ifndef _ADAFRUIT_SENSOR_H
 #define _ADAFRUIT_SENSOR_H
 
 #include "custom.h"
-/*
-#if ARDUINO >= 100
- #include "Arduino.h"
- #include "Print.h"
-#else
- #include "WProgram.h"
-#endif
-*/
 
 /* Intentionally modeled after sensors.h in the Android API:
  * https://github.com/android/platform_hardware_libhardware/blob/master/include/hardware/sensors.h */
