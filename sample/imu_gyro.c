@@ -7,7 +7,6 @@
 #include <string.h>
 #include <inttypes.h>
 #include <unistd.h>
-struct gyro_t *gyro;
 
 
 int main() {

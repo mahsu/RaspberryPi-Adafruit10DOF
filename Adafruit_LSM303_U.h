@@ -16,24 +16,9 @@
 #ifndef __LSM303_H__
 #define __LSM303_H__
 
-/*
-#if (ARDUINO >= 100)
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-*/
 
 #include <Adafruit_Sensor.h>
 #include "common.h"
-/*
-#ifdef __AVR_ATtiny85__
-  #include "TinyWireM.h"
-  #define Wire TinyWireM
-#else
-  #include <Wire.h>
-#endif
-*/
 
 /*=========================================================================
     I2C ADDRESS/BITS
@@ -171,25 +156,6 @@ bool accel_create( struct accel_t **ret_accel, int32_t sensorID);
 bool accel_getEvent(struct accel_t *accel, sensors_event_t* event);
 void accel_getSensor(struct accel_t *accel, sensor_t* sensor);
 
-/* Unified sensor driver for the accelerometer */
-/*class Adafruit_LSM303_Accel_Unified : public Adafruit_Sensor
-{
-  public:
-    Adafruit_LSM303_Accel_Unified(int32_t sensorID = -1);
-  
-    bool begin(void);
-    bool getEvent(sensors_event_t*);
-    void getSensor(sensor_t*);
-
-  private:
-    lsm303AccelData _accelData;   // Last read accelerometer data will be available here
-    int32_t         _sensorID;
-    int32_t			_fd;
-	
-    void write8(int fd, byte reg, byte value);
-    byte read8(int fd, byte reg);
-    void read(int fd);
-};*/
 
 // magnetometer instance
 typedef struct mag_t {
@@ -208,30 +174,4 @@ void mag_setRate(struct mag_t *mag, lsm303MagRate rate);
 bool mag_getEvent(struct mag_t *mag, sensors_event_t* event);
 void mag_getSensor(struct mag_t *mag, sensor_t* sensor);
 
-/* Unified sensor driver for the magnetometer */
-/*
-class Adafruit_LSM303_Mag_Unified : public Adafruit_Sensor
-{
-  public:
-    Adafruit_LSM303_Mag_Unified(int32_t sensorID = -1);
-  
-    bool begin(void);
-    void enableAutoRange(bool enable);
-    void setMagGain(lsm303MagGain gain);
-    void setMagRate(lsm303MagRate rate);
-    bool getEvent(sensors_event_t*);
-    void getSensor(sensor_t*);
-
-  private:
-    lsm303MagGain   _magGain;
-    lsm303MagData   _magData;     // Last read magnetometer data will be available here
-    int32_t         _sensorID;
-    bool            _autoRangeEnabled;
-	int32_t			_fd;
-    
-    void write8(int fd, byte reg, byte value);
-    byte read8(int fd, byte reg);
-    void read(int fd);
-};
-*/
 #endif

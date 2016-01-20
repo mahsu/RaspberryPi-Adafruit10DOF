@@ -2,9 +2,15 @@ CC:=gcc
 CFLAGS:= -Wall -std=gnu99
 BUILDDIR:=build
 LIBDIR:=../build
-
+SAMPLE:= build/imu_gyro build/imu_accel
 COMPLIBS = $(wildcard $(LIBDIR)/*.o)
 
-imu_gyro: imu_gyro.c
+clean:
+	@rm -rf $(BUILDDIR)
+
+all: $(addprefix $(BUILDDIR)/, $(patsubst %.c,%,$(wildcard ./*.c)))
+
+$(BUILDDIR)/%:%.c
 	@mkdir -p $(BUILDDIR)
-	$(CC) -o $(BUILDDIR)/$@ $< -lwiringPi -I../ $(COMPLIBS) $(CFLAGS)
+	@echo $(COMPLIBS)
+	$(CC) -o $@ $< -lwiringPi -I../ $(COMPLIBS) $(CFLAGS)

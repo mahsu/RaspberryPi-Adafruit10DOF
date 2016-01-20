@@ -13,28 +13,14 @@
   Ported by Matthew Hsu to Raspberry Pi compatible C for Cornell Rocketry Team.
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
-/*
- * #if ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-
-#ifdef __AVR_ATtiny85__
-  #include "TinyWireM.h"
-  #define Wire TinyWireM
-#else
-  #include <Wire.h>
-#endif
-*/
 
 #include <limits.h>
 #include <wiringPiI2C.h>
 #include "Adafruit_LSM303_U.h"
 
-/* enabling this #define will enable the debug print blocks
+// enabling this #define will enable the debug print blocks
 #define LSM303_DEBUG
-*/
+
 
 static float _lsm303Accel_MG_LSB     = 0.001F;   // 1, 2, 4 or 12 mg per lsb
 static float _lsm303Mag_Gauss_LSB_XY = 1100.0F;  // Varies with gain
@@ -43,60 +29,6 @@ static float _lsm303Mag_Gauss_LSB_Z  = 980.0F;   // Varies with gain
 /***************************************************************************
  ACCELEROMETER
  ***************************************************************************/
-/***************************************************************************
- PRIVATE FUNCTIONS
- ***************************************************************************/
-
-/**************************************************************************/
-/*!
-    @brief  Abstract away platform differences in Arduino wire library
-*/
-/**************************************************************************/
-
-/*void Adafruit_LSM303_Accel_Unified::wiringPiI2CWriteReg8(int fd, byte reg, byte value)
-{
-	wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
-	
-  Wire.beginTransmission(address);
-  #if ARDUINO >= 100
-    Wire.write((uint8_t)reg);
-    Wire.write((uint8_t)value);
-  #else
-    Wire.send(reg);
-    Wire.send(value);
-  #endif
-  Wire.endTransmission();
-  
-}*/
-
-/**************************************************************************/
-/*!
-    @brief  Abstract away platform differences in Arduino wire library
-*/
-/**************************************************************************/
-/*byte Adafruit_LSM303_Accel_Unified::wiringPiI2CReadReg8(int fd, byte reg)
-{
-  return wiringPiI2CReadReg8(fd,(uint32_t) reg);
-  byte value;
-
-  Wire.beginTransmission(address);
-  #if ARDUINO >= 100
-    Wire.write((uint8_t)reg);
-  #else
-    Wire.send(reg);
-  #endif
-  Wire.endTransmission();
-  Wire.requestFrom(address, (byte)1);
-  #if ARDUINO >= 100
-    value = Wire.read();
-  #else
-    value = Wire.receive();
-  #endif  
-  Wire.endTransmission();
-
-  return value;
-  
-}*/
 
 /**************************************************************************/
 /*!
@@ -104,18 +36,25 @@ static float _lsm303Mag_Gauss_LSB_Z  = 980.0F;   // Varies with gain
 */
 /**************************************************************************/
 void _accel_read(struct accel_t *accel) {
-//void Adafruit_LSM303_Accel_Unified::read(int fd)
-{
+
 	int fd = accel->fd;
-    wiringPiI2CWrite(fd, LSM303_REGISTER_ACCEL_OUT_X_L_A | 0x80);
-  // Read the accelerometer
-	uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
+  
+    // Read the accelerometer
+
+    uint8_t xlo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_X_L_A);
+    uint8_t xhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_X_H_A);
+    uint8_t ylo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Y_L_A);
+    uint8_t yhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Y_H_A);
+    uint8_t zlo = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Z_L_A);
+    uint8_t zhi = (uint8_t)wiringPiI2CReadReg8(fd,LSM303_REGISTER_ACCEL_OUT_Z_H_A);
+    /*
+    uint8_t xlo = (uint8_t)wiringPiI2CRead(fd);
     uint8_t xhi = (uint8_t)wiringPiI2CRead(fd);
     uint8_t ylo = (uint8_t)wiringPiI2CRead(fd);
     uint8_t yhi = (uint8_t)wiringPiI2CRead(fd);
     uint8_t zlo = (uint8_t)wiringPiI2CRead(fd);
     uint8_t zhi = (uint8_t)wiringPiI2CRead(fd);
-  
+  */
   /*
   Wire.beginTransmission((byte)LSM303_ADDRESS_ACCEL);
   #if ARDUINO >= 100
@@ -125,48 +64,13 @@ void _accel_read(struct accel_t *accel) {
   #endif
   Wire.endTransmission();
   Wire.requestFrom((byte)LSM303_ADDRESS_ACCEL, (byte)6);
-
-  // Wait around until enough data is available
-  while (Wire.available() < 6);
-
-  #if ARDUINO >= 100
-    uint8_t xlo = Wire.read();
-    uint8_t xhi = Wire.read();
-    uint8_t ylo = Wire.read();
-    uint8_t yhi = Wire.read();
-    uint8_t zlo = Wire.read();
-    uint8_t zhi = Wire.read();
-  #else
-    uint8_t xlo = Wire.receive();
-    uint8_t xhi = Wire.receive();
-    uint8_t ylo = Wire.receive();
-    uint8_t yhi = Wire.receive();
-    uint8_t zlo = Wire.receive();
-    uint8_t zhi = Wire.receive();
-  #endif    
-	*/
+*/
   // Shift values to create properly formed integer (low byte first)
   accel->accelData.x = (int16_t)(xlo | (xhi << 8)) >> 4;
   accel->accelData.y = (int16_t)(ylo | (yhi << 8)) >> 4;
   accel->accelData.z = (int16_t)(zlo | (zhi << 8)) >> 4;
 }
 
-/***************************************************************************
- CONSTRUCTOR
- ***************************************************************************/
- 
-/**************************************************************************/
-/*!
-    @brief  Instantiates a new Adafruit_LSM303 class
-*/
-/**************************************************************************/
-/*Adafruit_LSM303_Accel_Unified::Adafruit_LSM303_Accel_Unified(int32_t sensorID) {
-  _sensorID = sensorID;
-}*/
-
-/***************************************************************************
- PUBLIC FUNCTIONS
- ***************************************************************************/
  
 /**************************************************************************/
 /*!
@@ -208,7 +112,6 @@ bool accel_create(struct accel_t **ret_accel, int32_t sensorID)
 */
 /**************************************************************************/
 bool accel_getEvent(struct accel_t *accel, sensors_event_t* event) {
-//bool Adafruit_LSM303_Accel_Unified::getEvent(sensors_event_t *event) {
   /* Clear the event */
   memset(event, 0, sizeof(sensors_event_t));
   
@@ -234,7 +137,6 @@ bool accel_getEvent(struct accel_t *accel, sensors_event_t* event) {
 */
 /**************************************************************************/
 void accel_getSensor(struct accel_t *accel, sensor_t* sensor) {
-//void Adafruit_LSM303_Accel_Unified::getSensor(sensor_t *sensor) {
   /* Clear the sensor_t object */
   memset(sensor, 0, sizeof(sensor_t));
 
@@ -253,62 +155,6 @@ void accel_getSensor(struct accel_t *accel, sensor_t* sensor) {
 /***************************************************************************
  MAGNETOMETER
  ***************************************************************************/
-/***************************************************************************
- PRIVATE FUNCTIONS
- ***************************************************************************/
-
-/**************************************************************************/
-/*!
-    @brief  Abstract away platform differences in Arduino wire library
-*/
-/**************************************************************************/
-/*void Adafruit_LSM303_Mag_Unified::wiringPiI2CWriteReg8(int fd, byte reg, byte value)
-{
-		wiringPiI2CWriteReg8(fd, reg, (uint32_t)value);
-
-  Wire.beginTransmission(address);
-  #if ARDUINO >= 100
-    Wire.write((uint8_t)reg);
-    Wire.write((uint8_t)value);
-  #else
-    Wire.send(reg);
-    Wire.send(value);
-  #endif
-  Wire.endTransmission();
-  */
-}
-
-/**************************************************************************/
-/*!
-    @brief  Abstract away platform differences in Arduino wire library
-*/
-/**************************************************************************/
-/*
-byte Adafruit_LSM303_Mag_Unified::wiringPiI2CReadReg8(int fd, byte reg)
-{
-
-    return wiringPiI2CReadReg8(fd,(uint32_t) reg);
-  
-  byte value;
-
-  Wire.beginTransmission(address);
-  #if ARDUINO >= 100
-    Wire.write((uint8_t)reg);
-  #else
-    Wire.send(reg);
-  #endif
-  Wire.endTransmission();
-  Wire.requestFrom(address, (byte)1);
-  #if ARDUINO >= 100
-    value = Wire.read();
-  #else
-    value = Wire.receive();
-  #endif  
-  Wire.endTransmission();
-
-  return value;
-  
-}*/
 
 /**************************************************************************/
 /*!
@@ -316,7 +162,6 @@ byte Adafruit_LSM303_Mag_Unified::wiringPiI2CReadReg8(int fd, byte reg)
 */
 /**************************************************************************/
 void _mag_read(struct mag_t *mag)
-//void Adafruit_LSM303_Mag_Unified::read(int fd)
 {
     int fd = mag->fd;
 	wiringPiI2CWrite(fd, LSM303_REGISTER_MAG_OUT_X_H_M);
@@ -370,23 +215,6 @@ void _mag_read(struct mag_t *mag)
   // _magData.orientation = 0.0;
 }
 
-/***************************************************************************
- CONSTRUCTOR
- ***************************************************************************/
- 
-/**************************************************************************/
-/*!
-    @brief  Instantiates a new Adafruit_LSM303 class
-*/
-/**************************************************************************/
-/*Adafruit_LSM303_Mag_Unified::Adafruit_LSM303_Mag_Unified(int32_t sensorID) {
-  _sensorID = sensorID;
-  _autoRangeEnabled = false;
-}*/
-
-/***************************************************************************
- PUBLIC FUNCTIONS
- ***************************************************************************/
  
 /**************************************************************************/
 /*!
@@ -394,7 +222,6 @@ void _mag_read(struct mag_t *mag)
 */
 /**************************************************************************/
 bool mag_create( struct mag_t **ret_mag, int32_t sensorID)
-//bool Adafruit_LSM303_Mag_Unified::begin()
 {
   struct mag_t *mag = malloc (sizeof (struct mag_t));
 
@@ -432,7 +259,6 @@ bool mag_create( struct mag_t **ret_mag, int32_t sensorID)
 */
 /**************************************************************************/
 void mag_enableAutoRange(struct mag_t *mag, bool enabled)
-//void Adafruit_LSM303_Mag_Unified::enableAutoRange(bool enabled)
 {
   mag->autoRangeEnabled = enabled;
 }
@@ -443,7 +269,6 @@ void mag_enableAutoRange(struct mag_t *mag, bool enabled)
 */
 /**************************************************************************/
 void mag_setGain(struct mag_t *mag, lsm303MagGain gain)
-//void Adafruit_LSM303_Mag_Unified::mag_setGain(lsm303MagGain gain)
 {
   wiringPiI2CWriteReg8(mag->fd, LSM303_REGISTER_MAG_CRB_REG_M, (byte)gain);
   
@@ -488,7 +313,6 @@ void mag_setGain(struct mag_t *mag, lsm303MagGain gain)
 */
 /**************************************************************************/
 void mag_setRate(struct mag_t *mag, lsm303MagRate rate)
-//void Adafruit_LSM303_Mag_Unified::setMagRate(lsm303MagRate rate)
 {
 	byte reg_m = ((byte)rate & 0x07) << 2;
     wiringPiI2CWriteReg8(mag->fd, LSM303_REGISTER_MAG_CRA_REG_M, reg_m);
@@ -501,7 +325,6 @@ void mag_setRate(struct mag_t *mag, lsm303MagRate rate)
 */
 /**************************************************************************/
 bool mag_getEvent(struct mag_t *mag, sensors_event_t* event) {
-//bool Adafruit_LSM303_Mag_Unified::getEvent(sensors_event_t *event) {
   bool readingValid = false;
   
   /* Clear the event */
@@ -526,7 +349,7 @@ bool mag_getEvent(struct mag_t *mag, sensors_event_t* event) {
     else
     {
 #ifdef LSM303_DEBUG
-      printf("%f ", mag->_magData.x);
+      printf("%f ", mag->magData.x);
       printf("%f ", mag->magData.y);
       printf("%f \n", mag->magData.z);
 #endif	  
@@ -611,7 +434,6 @@ bool mag_getEvent(struct mag_t *mag, sensors_event_t* event) {
 */
 /**************************************************************************/
 void mag_getSensor(struct mag_t *mag, sensor_t *sensor){
-//void Adafruit_LSM303_Mag_Unified::getSensor(struct mag_t *mag, sensor_t *sensor) {
   /* Clear the sensor_t object */
   memset(sensor, 0, sizeof(sensor_t));
 

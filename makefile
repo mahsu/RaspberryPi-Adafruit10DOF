@@ -2,10 +2,12 @@ C:=gcc
 CFLAGS:=-Wall -std=gnu99
 BUILDDIR:=build
 
-.PHONY: clean prep lib
+.PHONY: clean all prep lib
 
 clean:
 	@rm -rf $(BUILDDIR)
+
+all: prep lib
 
 prep:
 	@mkdir -p $(BUILDDIR)
