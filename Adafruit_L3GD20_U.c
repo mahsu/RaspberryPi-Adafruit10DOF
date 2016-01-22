@@ -43,6 +43,9 @@ bool gyro_create( struct gyro_t **ret_gyro, int32_t sensorID, gyroRange_t rng) {
   //save the i2c handle for later
   gyro->fd = fd;
 
+  // default to use radians instead of degrees
+  gyro->useRadians = true;
+
   /* Make sure we have the correct chip ID since this checks
      for correct address and that the IC is properly connected */
   uint8_t id = wiringPiI2CReadReg8(fd, GYRO_REGISTER_WHO_AM_I);
@@ -149,6 +152,17 @@ void gyro_enableAutoRange(struct gyro_t *gyro, bool enabled)
   gyro->autoRangeEnabled = enabled;
 }
 
+
+/**************************************************************************/
+/*! 
+    @brief  Whether to return event data in degrees or radians.
+*/
+/**************************************************************************/
+void gyro_useRadians(struct gyro_t *gyro, bool useRadians)
+{
+  gyro->useRadians = useRadians;
+}
+
 /**************************************************************************/
 /*! 
     @brief  Gets the most recent sensor event
@@ -249,10 +263,11 @@ bool gyro_getEvent(struct gyro_t *gyro, sensors_event_t* event)
   }
   
   /* Convert values to rad/s */
-  event->gyro.x *= SENSORS_DPS_TO_RADS;
-  event->gyro.y *= SENSORS_DPS_TO_RADS;
-  event->gyro.z *= SENSORS_DPS_TO_RADS;
-  
+  if (gyro->useRadians) {
+      event->gyro.x *= SENSORS_DPS_TO_RADS;
+      event->gyro.y *= SENSORS_DPS_TO_RADS;
+      event->gyro.z *= SENSORS_DPS_TO_RADS;
+  }
   return true;
 }
 

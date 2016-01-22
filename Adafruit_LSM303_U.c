@@ -61,7 +61,6 @@ void _accel_read(struct accel_t *accel) {
 */
 /**************************************************************************/
 bool accel_create(struct accel_t **ret_accel, int32_t sensorID)
-//bool Adafruit_LSM303_Accel_Unified::begin()
 {
   struct accel_t *accel = malloc (sizeof (struct accel_t));
 
@@ -73,7 +72,10 @@ bool accel_create(struct accel_t **ret_accel, int32_t sensorID)
 
   //save the i2c handle for later
   accel->fd = fd;
-  
+ 
+  // default to return data in m/s^2 instead of G's
+  accel->useEarthGravity = true;
+
   // Enable the accelerometer (100Hz)
   wiringPiI2CWriteReg8(fd, LSM303_REGISTER_ACCEL_CTRL_REG1_A, 0x57);
   
@@ -87,6 +89,17 @@ bool accel_create(struct accel_t **ret_accel, int32_t sensorID)
   
   *ret_accel = accel;
   return true;
+}
+
+
+/**************************************************************************/
+/*!
+    @brief Whether to return sensor data in G's (false) or m/s^2 (true) 
+*/
+/**************************************************************************/
+void accel_useEarthGravity( struct accel_t *accel, bool useEarthGravity)
+{
+    accel->useEarthGravity = useEarthGravity;
 }
 
 /**************************************************************************/
@@ -107,9 +120,15 @@ bool accel_getEvent(struct accel_t *accel, sensors_event_t* event) {
   event->sensor_id = accel->sensorID;
   event->type      = SENSOR_TYPE_ACCELEROMETER;
   event->timestamp = 0;//TODO implement millis //millis();
-  event->acceleration.x = data.x * _lsm303Accel_MG_LSB * SENSORS_GRAVITY_STANDARD;
-  event->acceleration.y = data.y * _lsm303Accel_MG_LSB * SENSORS_GRAVITY_STANDARD;
-  event->acceleration.z = data.z * _lsm303Accel_MG_LSB * SENSORS_GRAVITY_STANDARD;
+  event->acceleration.x = data.x * _lsm303Accel_MG_LSB;
+  event->acceleration.y = data.y * _lsm303Accel_MG_LSB;
+  event->acceleration.z = data.z * _lsm303Accel_MG_LSB;
+
+  if (accel->useEarthGravity) {
+    event->acceleration.x *= SENSORS_GRAVITY_STANDARD;
+    event->acceleration.y *= SENSORS_GRAVITY_STANDARD;
+    event->acceleration.z *= SENSORS_GRAVITY_STANDARD;
+  }
 
   return true;
 }

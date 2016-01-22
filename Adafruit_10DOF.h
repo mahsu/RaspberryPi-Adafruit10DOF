@@ -15,21 +15,12 @@
 #ifndef __ADAFRUIT_10DOF_H__
 #define __ADAFRUIT_10DOF_H__
 
-/*
-#if (ARDUINO >= 100)
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-*/
-
 #include <Adafruit_Sensor.h>
 #include <Adafruit_LSM303_U.h>
-//#include <Adafruit_BMP085_U.h>
+#include <Adafruit_BMP085_U.h>
 #include <Adafruit_L3GD20_U.h>
 #include <wiringPiI2C.h>
-#include <custom.h>
-#include <Wire.h>
+#include <common.h>
 
 /** Sensor axis */
 typedef enum
@@ -40,18 +31,9 @@ typedef enum
 } sensors_axis_t;
 
 /* Driver for the the 10DOF breakout sensors */
-class Adafruit_10DOF
-{
-  public:
-    Adafruit_10DOF(void);
-    bool begin(void);
-    
-    bool  accelGetOrientation  ( sensors_event_t *event, sensors_vec_t *orientation );
-    bool  magTiltCompensation  ( sensors_axis_t axis, sensors_event_t *mag_event, sensors_event_t *accel_event );
-    bool  magGetOrientation    ( sensors_axis_t axis, sensors_event_t *event, sensors_vec_t *mag_orientation );
-    bool  fusionGetOrientation ( sensors_event_t *accel_event, sensors_event_t *mag_event, sensors_vec_t *orientation );
-
-  private:
-};
+bool ada10dof_accelGetOrientation  ( sensors_event_t *event, sensors_vec_t *orientation );
+bool ada10dof_magTiltCompensation  ( sensors_axis_t axis, sensors_event_t *mag_event, sensors_event_t *accel_event );
+bool ada10dof_magGetOrientation    ( sensors_axis_t axis, sensors_event_t *event, sensors_vec_t *mag_orientation );
+bool ada10dof_fusionGetOrientation ( sensors_event_t *accel_event, sensors_event_t *mag_event, sensors_vec_t *orientation );
 
 #endif

@@ -82,6 +82,7 @@
 typedef struct gyro_t {
     int32_t fd;
     bool autoRangeEnabled;
+    bool useRadians;
     int32_t sensorID;
     gyroRange_t range;
 } gyro_t;
@@ -90,6 +91,7 @@ typedef struct gyro_t {
 /* Function prototypes */
 bool gyro_create( struct gyro_t **ret_gyro, int32_t sensorID, gyroRange_t rng);
 void gyro_enableAutoRange(struct gyro_t *gyro, bool enabled);
+void gyro_useRadians(struct gyro_t *gyro, bool useRadians);
 bool gyro_getEvent(struct gyro_t *gyro, sensors_event_t* event);
 void gyro_getSensor(struct gyro_t *gyro, sensor_t* sensor);
 

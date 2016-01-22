@@ -147,12 +147,14 @@
 // accelerometer instance
 typedef struct accel_t {
     lsm303AccelData accelData;  //Last read accelerometer data
+    int32_t         useEarthGravity;
     int32_t         sensorID;
     int32_t         fd;
 } accel_t;
 
 // accelerometer function prototypes
 bool accel_create( struct accel_t **ret_accel, int32_t sensorID);
+void accel_useEarthGravity( struct accel_t *accel, bool useEarthGravity);
 bool accel_getEvent(struct accel_t *accel, sensors_event_t* event);
 void accel_getSensor(struct accel_t *accel, sensor_t* sensor);
 

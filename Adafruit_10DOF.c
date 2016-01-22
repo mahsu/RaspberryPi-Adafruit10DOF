@@ -12,15 +12,7 @@
   Written by Kevin Townsend for Adafruit Industries.  
   BSD license, all text above must be included in any redistribution
  ***************************************************************************/
-/*
- #if ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include "WProgram.h"
-#endif
-*/
 
-//#include <Wire.h>
 #include <limits.h>
 #include <math.h>
 #include <wiringPiI2C.h>
@@ -28,41 +20,6 @@
 #include "Adafruit_10DOF.h"
 
 #define PI  (3.14159265F);
-
-/***************************************************************************
- PRIVATE FUNCTIONS
- ***************************************************************************/
-
-
-/***************************************************************************
- CONSTRUCTOR
- ***************************************************************************/
- 
-/**************************************************************************/
-/*!
-    @brief  Instantiates a new Adafruit_10DOF class
-*/
-/**************************************************************************/
-Adafruit_10DOF::Adafruit_10DOF(void) 
-{
-}
-
-/***************************************************************************
- PUBLIC FUNCTIONS
- ***************************************************************************/
- 
-/**************************************************************************/
-/*!
-    @brief  Setups the HW
-*/
-/**************************************************************************/
-bool Adafruit_10DOF::begin()
-{
-  // Enable I2C
-  //Wire.begin();
-
-  return true;
-}
 
 /**************************************************************************/
 /*!
@@ -88,7 +45,7 @@ bool Adafruit_10DOF::begin()
     @endcode
 */
 /**************************************************************************/
-bool Adafruit_10DOF::accelGetOrientation(sensors_event_t *event, sensors_vec_t *orientation)
+bool ada10dof_accelGetOrientation(sensors_event_t *event, sensors_vec_t *orientation)
 {
   /* Make sure the input is valid, not null, etc. */
   if (event == NULL) return false;
@@ -96,7 +53,7 @@ bool Adafruit_10DOF::accelGetOrientation(sensors_event_t *event, sensors_vec_t *
 
   float t_pitch;
   float t_roll;
-  float t_heading;
+  //float t_heading;
   float signOfZ = event->acceleration.z >= 0 ? 1.0F : -1.0F;
 
   /* roll: Rotation around the longitudinal axis (the plane body, 'X axis'). -90<=roll<=90    */
@@ -151,7 +108,7 @@ bool Adafruit_10DOF::accelGetOrientation(sensors_event_t *event, sensors_vec_t *
     @endcode
 */
 /**************************************************************************/
-bool Adafruit_10DOF::magTiltCompensation(sensors_axis_t axis, sensors_event_t *mag_event, sensors_event_t *accel_event)
+bool ada10dof_magTiltCompensation(sensors_axis_t axis, sensors_event_t *mag_event, sensors_event_t *accel_event)
 {
   /* Make sure the input is valid, not null, etc. */
   if (mag_event == NULL) return false;
@@ -238,7 +195,7 @@ bool Adafruit_10DOF::magTiltCompensation(sensors_axis_t axis, sensors_event_t *m
     @endcode
 */
 /**************************************************************************/
-bool Adafruit_10DOF::magGetOrientation(sensors_axis_t axis, sensors_event_t *event, sensors_vec_t *orientation)
+bool ada10dof_magGetOrientation(sensors_axis_t axis, sensors_event_t *event, sensors_vec_t *orientation)
 {
   /* Make sure the input is valid, not null, etc. */
   if (event == NULL) return false;
@@ -304,7 +261,7 @@ bool Adafruit_10DOF::magGetOrientation(sensors_axis_t axis, sensors_event_t *eve
                           .roll, .pitch and .heading fields populated
 */
 /**************************************************************************/
-bool Adafruit_10DOF::fusionGetOrientation(sensors_event_t *accel_event, sensors_event_t *mag_event, sensors_vec_t *orientation)
+bool ada10dof_fusionGetOrientation(sensors_event_t *accel_event, sensors_event_t *mag_event, sensors_vec_t *orientation)
 {
   /* Make sure the input is valid, not null, etc. */
   if ( accel_event  == NULL) return false;
