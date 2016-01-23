@@ -24,6 +24,7 @@ install:
 	cp $(BUILDDIR)/$(LIBFILENAME) $(INSTALLDIR)
 	cp $(HEADERS) $(INCLUDEDIR)
 	ln -s $(INSTALLDIR)/$(LIBFILENAME) $(INSTALLDIR)/$(LIBNAME).so
+	ldconfig
 
 uninstall:
 	rm $(INSTALLDIR)/$(LIBFILENAME)

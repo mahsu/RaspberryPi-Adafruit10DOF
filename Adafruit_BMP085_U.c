@@ -283,6 +283,18 @@ void bmp_getTemperature(struct bmp_t *bmp, float *temp)
 
 /**************************************************************************/
 /*!
+    Converts temperature in celsius to temperature in fahrenheit.
+
+    @param  degC          Degrees celsius
+*/
+/**************************************************************************/
+float bmp_celsiusToFahrenheit(float degC)
+{
+  return degC * 9/5 + 32;
+}
+
+/**************************************************************************/
+/*!
     Calculates the altitude (in meters) from the specified atmospheric
     pressure (in hPa), and sea-level pressure (in hPa).
 

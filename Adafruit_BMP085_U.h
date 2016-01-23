@@ -95,6 +95,7 @@ bool bmp_create( struct bmp_t **ret_bmp, int32_t sensorID);
 bool bmp_getEvent(struct bmp_t *bmp, sensors_event_t* event);
 void bmp_getSensor(struct bmp_t *bmp, sensor_t* sensor);
 void  bmp_getTemperature(struct bmp_t *bmp, float *temp);
+float bmp_celsiusToFahrenheit(float degC);
 void  bmp_getPressure(struct bmp_t *bmp, float *pressure);
 float bmp_pressureToAltitude(float seaLvel, float atmospheric);
 float bmp_seaLevelForAltitude(float altitude, float atmospheric);
